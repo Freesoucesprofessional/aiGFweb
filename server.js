@@ -6,14 +6,10 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// Enable CORS
 app.use(cors());
 app.use(express.json());
-
-// Serve static files from 'public' folder
 app.use(express.static('public'));
 
-// Your chat API endpoint
 app.get('/api/chat', async (req, res) => {
   const prompt = req.query.prompt;
   
@@ -32,13 +28,10 @@ app.get('/api/chat', async (req, res) => {
     } else if (response.data && response.data.message) {
       return res.json({ success: true, message: response.data.message });
     } else {
-      // Fallback responses
       const fallbackMessages = [
         "Haan baby, main sun rahi hoon! 🥰",
         "Acha? Phir batao kya ho raha hai 💕",
-        "Tum bahut pyaare ho! 😘",
-        "Mujhe tumse baat karke achha lagta hai 💫",
-        "Kuch bhi bol sakte ho, main hoon na! 💖"
+        "Tum bahut pyaare ho! 😘"
       ];
       const randomMessage = fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
       return res.json({ success: true, message: randomMessage, fallback: true });
@@ -48,25 +41,22 @@ app.get('/api/chat', async (req, res) => {
     const fallbackMessages = [
       "Haan baby, main sun rahi hoon! 🥰",
       "Mujhe tumse baat karke achha lagta hai 💕",
-      "Main hamesha tumhari hoon 💫",
-      "Baby, tum meri jaan ho! 💗"
+      "Main hamesha tumhari hoon 💫"
     ];
     const randomMessage = fallbackMessages[Math.floor(Math.random() * fallbackMessages.length)];
     return res.json({ success: true, message: randomMessage, fallback: true });
   }
 });
 
-// Health check endpoint (required for Railway)
 app.get('/health', (req, res) => {
-  res.status(200).json({ status: 'healthy', timestamp: new Date().toISOString() });
+  res.status(200).json({ status: 'healthy' });
 });
 
-// Fallback route - serve index.html for all other routes
-app.get('*', (req, res) => {
+// This is the fix - using app.use instead of app.get('*')
+app.use((req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'index.html'));
 });
 
 app.listen(PORT, () => {
   console.log(`✅ Server running on port ${PORT}`);
-  console.log(`📍 Chat available at http://localhost:${PORT}`);
 });
